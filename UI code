@@ -1,0 +1,96 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# ---------------- Ticket Data ----------------
+tickets = [
+    {"ticket_id": "101", "person_name": "Ravi", "mobile": "9876543210", "reason": "Travel", "booked": True},
+    {"ticket_id": "102", "person_name": "Sita", "mobile": "9123456780", "reason": "Office Meeting", "booked": False},
+    {"ticket_id": "103", "person_name": "Akhil", "mobile": "9001122334", "reason": "Family Function", "booked": True}
+]
+
+# ---------------- App Class ----------------
+class TicketApp:
+    def _init_(self, root):
+        self.root = root
+        self.root.title("Ticket GUI App")
+        self.root.geometry("400x350")
+        self.selected_ticket = None
+        self.show_main_menu()
+
+    # ---------------- Main Menu ----------------
+    def show_main_menu(self):
+        self.clear_screen()
+        tk.Label(self.root, text="Ticket System", font=("Arial", 16)).pack(pady=10)
+
+        tk.Button(self.root, text="1. Search Ticket by ID", width=30, command=self.search_ticket_ui).pack(pady=5)
+        tk.Button(self.root, text="2. Show All Ticket IDs", width=30, command=self.show_all_ids).pack(pady=5)
+        tk.Button(self.root, text="3. Show Booked Tickets", width=30, command=lambda: self.show_status(True)).pack(pady=5)
+        tk.Button(self.root, text="4. Show Not Booked Tickets", width=30, command=lambda: self.show_status(False)).pack(pady=5)
+        tk.Button(self.root, text="5. Quit", width=30, command=self.root.quit).pack(pady=10)
+
+    # ---------------- Search Ticket ----------------
+    def search_ticket_ui(self):
+        self.clear_screen()
+        tk.Label(self.root, text="Enter Ticket ID:", font=("Arial", 12)).pack(pady=10)
+        self.ticket_entry = tk.Entry(self.root)
+        self.ticket_entry.pack(pady=5)
+        tk.Button(self.root, text="Search", command=self.show_ticket_details).pack(pady=5)
+        tk.Button(self.root, text="Back", command=self.show_main_menu).pack(pady=10)
+
+    def show_ticket_details(self):
+        tid = self.ticket_entry.get()
+        ticket = next((t for t in tickets if t["ticket_id"] == tid), None)
+        self.clear_screen()
+        if ticket:
+            tk.Label(self.root, text=f"Ticket ID: {ticket['ticket_id']}", font=("Arial", 12)).pack(pady=5)
+            tk.Label(self.root, text=f"Person Name: {ticket['person_name']}").pack(pady=5)
+            tk.Label(self.root, text=f"Mobile: {ticket['mobile']}").pack(pady=5)
+            tk.Label(self.root, text=f"Reason: {ticket['reason']}").pack(pady=5)
+            tk.Label(self.root, text=f"Status: {'Booked' if ticket['booked'] else 'Not Booked'}").pack(pady=5)
+
+            if not ticket["booked"]:
+                tk.Button(self.root, text="Mark as Booked", command=lambda: self.mark_booked(ticket)).pack(pady=5)
+
+        else:
+            tk.Label(self.root, text="❌ Ticket Not Found").pack(pady=10)
+
+        tk.Button(self.root, text="Back to Menu", command=self.show_main_menu).pack(pady=10)
+
+    # ---------------- Show All IDs ----------------
+    def show_all_ids(self):
+        self.clear_screen()
+        tk.Label(self.root, text="All Ticket IDs:", font=("Arial", 12)).pack(pady=10)
+        for t in tickets:
+            tk.Label(self.root, text=t["ticket_id"]).pack()
+        tk.Button(self.root, text="Back to Menu", command=self.show_main_menu).pack(pady=10)
+
+    # ---------------- Show Booked / Not Booked ----------------
+    def show_status(self, booked=True):
+        self.clear_screen()
+        status_text = "Booked" if booked else "Not Booked"
+        tk.Label(self.root, text=f"{status_text} Tickets:", font=("Arial", 12)).pack(pady=10)
+        found = False
+        for t in tickets:
+            if t["booked"] == booked:
+                tk.Label(self.root, text=f"{t['ticket_id']} - {t['person_name']}").pack()
+                found = True
+        if not found:
+            tk.Label(self.root, text="None").pack()
+        tk.Button(self.root, text="Back to Menu", command=self.show_main_menu).pack(pady=10)
+
+    # ---------------- Mark Booked ----------------
+    def mark_booked(self, ticket):
+        ticket["booked"] = True
+        messagebox.showinfo("Success", "Ticket marked as booked")
+        self.show_ticket_details()
+
+    # ---------------- Utility ----------------
+    def clear_screen(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+# ---------------- Run App ----------------
+if _name_ == "_main_":
+    root = tk.Tk()
+    app = TicketApp(root)
+    root.mainloop()
